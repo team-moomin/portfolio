@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>내 포트폴리오</title>
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--tx:#15211c;--mu:#66756e;--bd:#dfe5e2;--up:#e0343a;--dn:#2f6fe0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1512;--card:#131f1b;--tx:#e6efeb;--mu:#8ca199;--bd:#22322c;--up:#ff6166;--dn:#5b96ff}}
+:root[data-theme="dark"]{--bg:#0c1512;--card:#131f1b;--tx:#e6efeb;--mu:#8ca199;--bd:#22322c;--up:#ff6166;--dn:#5b96ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 14px/1.5 -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-variant-numeric:tabular-nums}
+main{max-width:920px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:18px;margin:0 0 2px}
+.sub{color:var(--mu);font-size:12px;margin:0 0 16px}
+.hero,.grid,.wrap{background:var(--card);border:1px solid var(--bd);border-radius:14px}
+.hero{padding:18px}
+.big{font-size:34px;font-weight:700;letter-spacing:-.5px;line-height:1.2}
+.row{display:flex;gap:20px;flex-wrap:wrap;margin-top:10px;color:var(--mu);font-size:13px}
+.row b{display:block;color:var(--tx);font-size:15px;font-weight:500}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.grid{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:center;margin:14px 0 18px;padding:18px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+svg{width:100%;max-width:200px;margin:0 auto;display:block}
+.lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 14px;font-size:13px}
+.lg span{display:flex;align-items:center;gap:6px}
+.lg i{width:9px;height:9px;border-radius:50%;flex:none}
+.lg em{margin-left:auto;font-style:normal;color:var(--mu)}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{font-weight:500;color:var(--mu);font-size:12px}
+th:first-child,td:first-child{text-align:left}
+tr:last-child td{border-bottom:0}
+td small{display:block;color:var(--mu);font-size:11px}
+.note{color:var(--mu);font-size:12px;margin-top:12px}
+</style>
+</head>
+<body>
+<main>
+<h1>내 포트폴리오</h1>
+<p class="sub" id="d">불러오는 중…</p>
+<section class="hero">
+  <div class="big" id="tv"></div>
+  <div class="row"><div>평가손익<b id="tp"></b></div><div>수익률<b id="tr"></b></div><div>총 매수<b id="tc"></b></div></div>
+</section>
+<section class="grid">
+  <svg viewBox="0 0 120 120" id="dn" role="img" aria-label="종목 비중 도넛 차트"></svg>
+  <div class="lg" id="lg"></div>
+</section>
+<div class="wrap"><table><thead><tr><th>종목</th><th>수량</th><th>평가금액</th><th>매수금액</th><th>손익</th><th>수익률</th><th>비중</th></tr></thead><tbody id="tb"></tbody></table></div>
+<p class="note" id="nt">종목이나 수량을 바꾸려면 holdings.json을 수정하면 돼. 수수료·배당은 반영 안 됨.</p>
+</main>
+<script>
+var $=function(i){return document.getElementById(i)};
+var f=function(n){return Math.round(n).toLocaleString("ko-KR")};
+var sg=function(n){return(n>0?"+":n<0?"−":"")+f(Math.abs(n))};
+var pc=function(n){return(n>0?"+":n<0?"−":"")+Math.abs(n).toFixed(1)+"%"};
+var cl=function(n){return n>0?"up":n<0?"dn":""};
+var PAL=["#1f7a5a","#e0a030","#4f8cff","#d9577a","#8a6fd6","#33b5c4","#e07a3a","#7ea04d","#999fa6"];
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var t=Date.now();
+Promise.all([
+  fetch("holdings.json?"+t).then(function(r){return r.json()}),
+  fetch("prices.json?"+t).then(function(r){return r.json()}).catch(function(){return{prices:{}}})
+]).then(function(a){run(a[0],a[1])}).catch(function(){$("d").textContent="데이터를 불러오지 못했어. holdings.json이 index.html과 같은 곳에 있는지 확인해줘."});
+function run(H,P){
+  var pr=P.prices||{},fx=P.usdkrw,miss=[];
+  var D=H.map(function(h){var p=pr[h.symbol],v;
+    if(p!=null&&(h.cur!=="USD"||fx)){v=h.qty*p*(h.cur==="USD"?fx:1)}else{v=h.last_value||0;miss.push(h.name)}
+    return{n:h.name,k:h.kind,q:h.qty,v:v,c:h.cost}});
+  var rows=D.slice().sort(function(a,b){return b.v-a.v}),V=0,C=0;
+  D.forEach(function(r){V+=r.v;C+=r.c});var Pn=V-C;
+  $("d").textContent=P.updated?"시세 갱신 "+P.updated+" · 원화":"아직 시세 갱신 전 · 2026-10-05 스냅샷 값";
+  if(miss.length)$("nt").textContent="가격을 못 가져온 종목은 스냅샷 값으로 표시했어: "+miss.join(", ");
+  $("tv").textContent=f(V)+"원";
+  $("tp").textContent=sg(Pn)+"원";$("tp").className=cl(Pn);
+  $("tr").textContent=C?pc(Pn/C*100):"-";$("tr").className=cl(Pn);
+  $("tc").textContent=f(C)+"원";
+  var R=46,L=2*Math.PI*R,off=0,svg="";
+  rows.forEach(function(r,i){var w=V?r.v/V*L:0;
+    svg+='<circle cx="60" cy="60" r="'+R+'" fill="none" stroke="'+PAL[i%PAL.length]+'" stroke-width="16" stroke-dasharray="'+w+' '+(L-w)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 60 60)"/>';off+=w});
+  svg+='<text x="60" y="58" text-anchor="middle" font-size="16" font-weight="700" fill="currentColor">'+D.length+'</text><text x="60" y="73" text-anchor="middle" font-size="8" fill="#8a9a93">종목</text>';
+  $("dn").innerHTML=svg;
+  $("lg").innerHTML=rows.map(function(r,i){return'<span><i style="background:'+PAL[i%PAL.length]+'"></i>'+esc(r.n)+'<em>'+(V?(r.v/V*100).toFixed(1):0)+'%</em></span>'}).join("");
+  $("tb").innerHTML=rows.map(function(r){var p=r.v-r.c,rt=r.c?p/r.c*100:0;
+    return'<tr><td>'+esc(r.n)+'<small>'+esc(r.k)+'</small></td><td>'+esc(r.q)+'</td><td>'+f(r.v)+'</td><td>'+f(r.c)+'</td><td class="'+cl(p)+'">'+sg(p)+'</td><td class="'+cl(p)+'">'+pc(rt)+'</td><td>'+(V?(r.v/V*100).toFixed(1):0)+'%</td></tr>'}).join("");
+}
+</script>
+</body>
+</html>

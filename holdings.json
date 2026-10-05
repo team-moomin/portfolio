@@ -1,0 +1,11 @@
+[
+ {"name":"비트코인","kind":"코인","symbol":"KRW-BTC","src":"upbit","cur":"KRW","qty":0.42267592,"cost":41953440,"last_value":49199899},
+ {"name":"라이터 (LIT)","kind":"코인","symbol":"KRW-LIT","src":"upbit","cur":"KRW","qty":226.24509866,"cost":1499966,"last_value":1154981},
+ {"name":"블룸 에너지","kind":"해외주식","symbol":"BE","src":"yahoo","cur":"USD","qty":6,"cost":1729284,"last_value":2367335},
+ {"name":"코어위브","kind":"해외주식","symbol":"CRWV","src":"yahoo","cur":"USD","qty":10,"cost":1088810,"last_value":1227990},
+ {"name":"엔비디아","kind":"해외주식","symbol":"NVDA","src":"yahoo","cur":"USD","qty":4.004605,"cost":1270084,"last_value":1280475},
+ {"name":"QQQ","kind":"해외주식","symbol":"QQQ","src":"yahoo","cur":"USD","qty":3,"cost":3045114,"last_value":3056040},
+ {"name":"갤럭시 디지털","kind":"해외주식","symbol":"GLXY","src":"yahoo","cur":"USD","qty":145,"cost":4740493,"last_value":4624951},
+ {"name":"앱러빈","kind":"해외주식","symbol":"APP","src":"yahoo","cur":"USD","qty":7,"cost":3022121,"last_value":2566122},
+ {"name":"TIGER 미국우주테크","kind":"국내주식","symbol":"0183J0.KS","src":"yahoo","cur":"KRW","qty":32,"cost":589440,"last_value":235520}
+]
